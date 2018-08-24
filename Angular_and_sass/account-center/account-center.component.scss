@@ -1,0 +1,144 @@
+@import "../../assets/variables.scss";
+
+.account-center{
+
+    h2{
+        font-size: $h2;
+        color: $dark-grey;
+        font-family: $bold-font;
+        margin-bottom: 30px;
+    }
+
+    .step{
+        width: 75px;
+        display: table;
+        line-height: 6px !important;
+        background: none;
+
+        i{
+            display: table-cell;
+            vertical-align: middle;
+            color: $dar-bg;
+        }
+
+        img{
+            vertical-align: middle;
+            max-width: 40px;
+            height: auto;
+        }
+    }
+    .mat-expansion-panel-header{
+        padding-left: 95px;
+    }
+
+    .account-right{
+        text-align: right;
+
+        @media screen and (max-width: 767px){
+            text-align: left;
+        }
+    }
+
+    .mat-expanded{
+        .step{
+            line-height: 35px !important;
+        }
+        i{
+            color: $white;
+        }
+    }
+
+    .add-new-account{
+        background: $white;
+        padding: 15px;
+        @include box-shadow;
+
+        &.edit{
+            padding:0;
+            @include box-shadow(none);
+        }
+
+        h2{
+            font-size: $h2;
+            color: $dark-grey;
+            font-family: $bold_font;
+            margin-top: 10px;
+        }
+        h3{
+            font-size: $h3;
+        }
+
+        .choose-method{
+
+            margin-bottom: 10px;
+
+            span{
+                display: inline-block;
+                border: solid 1px $border-gray;
+                margin-right: 10px;
+                box-sizing: border-box;
+                padding: 10px;
+                max-width: 60px;
+                height: auto;
+                cursor: pointer;
+
+                img{
+                    display: block;
+                    width: 100%;
+                }
+
+                &.active{
+                    border: solid 3px $theme;
+                }
+            }
+
+        }
+    }
+
+    .mat-accordion{
+
+        .mat-expansion-panel{
+            margin-bottom: 10px !important;
+        }
+    } 
+
+    .button-wrapp{
+        text-align: center;
+        margin-top: 25px;
+        margin-bottom: 10px;
+    }
+    .success-message{
+        margin:-23px 0 4px 0;
+    }
+}
+
+.success-message{
+    color:$white;
+    margin: 0;
+    background:$confirm-bg-green;
+    padding:10px;
+    border-radius: 3px;
+}
+
+.confirm-popup{
+    background:$white;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    text-align: center;
+    display: flex;
+    align-items: center;
+
+    .btn{
+        height: auto;
+        min-width: auto;
+    }
+}
+
+.center-table{
+    display: table;
+    margin: auto;
+}

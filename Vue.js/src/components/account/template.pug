@@ -1,0 +1,5 @@
+div.account
+    div.profilePic
+        i.el-icon-setting(v-if="login" @click="showAccountDetails")
+    
+    div.account-details(v-bind:class="{ show: accountDropdown }") Login details

@@ -1,0 +1,234 @@
+<div class="panel-header">
+  {{ 'HOME.ACCOUNT_CENTER' | translate }}
+</div>
+<div class="cashier-wrapper deposit-wrapper account-center">
+  <p>{{ 'HOME.ACCOUNT_CENTER_HEADER' | translate }}</p>
+  <h2 *ngIf="savedAccounts">{{ 'HOME.MY_ACCOUNTS' | translate }}</h2>
+  <div class="success-message" *ngIf="AddesSuccesfully">
+    {{ 'HOME.ACCOUNT_ADDED' | translate }}
+  </div>
+  <div class="success-message" *ngIf="updatesSuccesfully">
+    {{ 'HOME.ACCOUNT_UPDATED' | translate }}
+  </div>
+  <div class="success-message" *ngIf="deletedSuccesfully">
+    {{ 'HOME.ACCOUNT_DELETED' | translate }}
+  </div>
+  <mz-progress [backgroundClass]="'black'" [progressClass]="'yellow'" *ngIf="IsprogressAccountList && IsprogressAccountList">
+  </mz-progress>
+  <md-accordion>
+    <md-expansion-panel (opened)="setStep(0)" class="account-menu-items" *ngFor="let account of savedAccounts; let i = index "
+      [ngClass]="{active:account.selected}">
+      <md-expansion-panel-header (click)="isEditAccountView=false;cardNumberAlreadyInUse=false">
+        <span class="step"><img src="{{account.payment_type_image}}" alt=""></span> {{account.type_name}} ( xxx - xxx - xxx-
+        {{account.last4}})
+        <div class="choosed-method" *ngIf="selectedPaymentMethod!=0"> <img src="{{account.payment_type_image}}" alt="" class="responsive-img"> </div>
+      </md-expansion-panel-header>
+      <div class="col s12 no-padding Account-details relative" *ngIf="!isEditAccountView">
+        <div *ngIf="isDeleteConfirm" class="confirm-popup">
+          <div class="center-table">
+            <p>
+              {{ 'HOME.DELETE_ACCOUNT_CONFIRM' | translate }}
+            </p>
+            <div class="row minus-margin">
+              <div class="row">
+                <button mz-button class="primary-button" data-test-id="no" (click)="isDeleteConfirm=false;">No</button>
+                <button mz-button class="primary-button" data-test-id="yes" (click)="cardDelete(account.pk)">Yes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row minus-margin">
+          <div class="col s12 m6">
+            {{ 'HOME.CARD_TYPE' | translate }}
+          </div>
+          <div class="col s12 m6 account-right">
+            {{account.type_name}}
+          </div>
+        </div>
+        <div class="row minus-margin">
+          <div class="col s12 m6">
+            {{ 'HOME.CARD_NUMBER' | translate }}
+          </div>
+          <div class="col s12 m6 account-right">
+            XXX - XXX - XXX - {{account.last4}}
+          </div>
+        </div>
+        <div class="row minus-margin">
+          <div class="col s12 m6">
+            {{ 'HOME.CARD_OWNER' | translate }}
+          </div>
+          <div class="col s12 m6 account-right">
+            {{account.name_on_card}}
+          </div>
+        </div>
+        <div class="row minus-margin">
+          <div class="col s12 m6">
+            {{ 'HOME.EXPIRY_DATE' | translate }}
+          </div>
+          <div class="col s12 m6 account-right">
+            {{account.expire_month}}/{{account.expire_year}}
+          </div>
+        </div>
+        <div class="row minus-margin">
+          <div class="col right">
+            <button mz-button class="primary-button" type="submit" data-test-id="deleteAccount" (click)="isDeleteConfirm=true;"> {{ 'HOME.DELETE' | translate }}</button>
+            <button mz-button class="primary-button" type="submit" data-test-id="editAcount" (click)="selectSavedAccount(account)"> {{ 'HOME.EDIT' | translate }}</button>
+          </div>
+        </div>
+      </div>
+      <div class="add-new-account edit" *ngIf="isEditAccountView && !isAddNewAccountView">
+        <form [formGroup]="cardForm" (ngSubmit)="cardEdit()">
+          <div class="row minus-margin m-b-0">
+            <md-form-field class="col s12">
+              <input mdInput placeholder="{{'HOME.NAME_ON_CARD' | translate}}" id="cName" [(ngModel)]="editNameOnCard" formControlName="cName"
+                ngControl="cName" type="text">
+              <md-error *ngIf="!cName.hasError('required') &&cardForm.controls.cName.invalid && (cardForm.controls.cName.touched || form_submited)">
+                {{ 'VALIDATION.NAME_INVALID' | translate }}
+              </md-error>
+              <md-error *ngIf="cName.hasError('required') && (cardForm.controls.cName.touched || form_submited)">
+                {{ 'VALIDATION.NAME_REQUIRED' | translate }}
+              </md-error>
+            </md-form-field>
+          </div>
+          <div class="row minus-margin">
+            <md-form-field class="col s12 m6 cvv-wrapp" [ngClass]="{'form-error':(invalidCardNumber||cardNumberAlreadyInUse) && (cardForm.controls.cNumber.touched || form_submited)}">
+              <input mdInput placeholder="{{'HOME.CARD_NUMBER' | translate}}" id="cNumber" [(ngModel)]="editCardNumber" (ngModelChange)="validateCard($event)"
+                formControlName="cNumber" ngControl="cNumber" creditCard>
+              <span class="mat-error absolute" *ngIf="invalidCardNumber  && !cNumber.hasError('required')">{{ 'VALIDATION.CARD_INVALID' | translate }}</span>
+              <span class="mat-error absolute" *ngIf="cardNumberAlreadyInUse ">{{ 'VALIDATION.CARD_INUSE' | translate }}</span>
+              <md-error *ngIf="cNumber.hasError('required') && (cardForm.controls.cNumber.touched || form_submited)">
+                {{ 'VALIDATION.CARD_REQUIRED' | translate }}
+              </md-error>
+            </md-form-field>
+            <div class="input-field col s12 m6 margin0">
+              <div class="input-wrapp">
+                <span class="label-text date-label">{{ 'HOME.EXPIRATION_DATE' | translate }}</span>
+                <div class="row minus-margin m-b-0">
+                  <div class="col s6">
+                    <md-select class="custom-select" placeholder="MM" [(ngModel)]="editCardMonth" (ngModelChange)="change()" formControlName="expMonth"
+                      ngControl="expMonth" floatPlaceholder="never">
+                      <md-option *ngFor="let month of months" [value]="month">{{month}}</md-option>
+                    </md-select>
+                    <md-error *ngIf="expMonth.hasError('selectValid')&& (cardForm.controls.expMonth.touched || form_submited)">
+                      {{ 'VALIDATION.REQUIRED' | translate }}
+                    </md-error>
+                  </div>
+                  <div class="col s6">
+                    <md-select class="custom-select" placeholder="YYYY" [(ngModel)]="editCardYear" (ngModelChange)="change()" formControlName="expYear"
+                      ngControl="expYear" floatPlaceholder="never">
+                      <md-option *ngFor="let year of years" [value]="year">{{year}}</md-option>
+                    </md-select>
+                    <md-error *ngIf="expYear.hasError('selectValid') && (cardForm.controls.expYear.touched || form_submited)">
+                      {{ 'VALIDATION.REQUIRED' | translate }}
+                    </md-error>
+                  </div>
+                  <span *ngIf="isCardExpire"> {{ 'VALIDATION.CARD_EXPIRED' | translate }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row m-b-0">
+            <mz-checkbox-container>
+              <input mz-checkbox label="{{'HOME.SAVE_FAVORITE_ACCOUNT' | translate}}" [(ngModel)]="isFavourite" formControlName="favouriteCheck"
+                ngControl="favouriteCheck" id="checkbox-id" type="checkbox">
+            </mz-checkbox-container>
+          </div>
+          <input mdInput id="paymentTypeSelectNameId" [(ngModel)]="paymentTypeSelectName" class="hide" formControlName="cardType" ngControl="cardType">
+          <div class="row minus-margin">
+            <div class="col right link-wrapp">
+              <a mz-button class="primary-button btn left" data-test-id="btnAccountCancel" (click)="cancelClick()">{{ 'HOME.CANCEL' | translate }}</a>
+              <button type="submit" mz-button class="primary-button right" data-test-id="btnAccountSave" *ngIf="!saveLoading">{{ 'HOME.SAVE' | translate }}</button>
+              <a md-button class="primary-button btn right relative" *ngIf="saveLoading">
+              {{ 'HOME.SAVE' | translate }} 
+              <font class="overlayload">
+                <i class="spin material-icons">autorenew</i>
+              </font>
+            </a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </md-expansion-panel>
+  </md-accordion>
+  <div class="account-menu-items add-new-account" *ngIf="isAddNewAccountView &&!isEditAccountView">
+    <h2>{{ 'HOME.ADD_NEW_ACCOUNT' | translate }}</h2>
+    <form [formGroup]="cardForm" (ngSubmit)="cardSubmit()">
+      <h3>{{ 'HOME.CHOOSE_PAYMENT_METHOD' | translate }}</h3>
+      <div class="choose-method">
+        <span class="choose-type" (click)="paymentTypeSelect($event,type)" *ngFor="let type of paymentTypes; let i = index"><img src="{{type.payment_type_image}}" alt=""></span>
+      </div>
+      <span class="mat-error alert" *ngIf="!IsPaymentTypeSelected&& (cardForm.controls.cNumber.touched || form_submited)"> {{ 'HOME.SELECT_ACCOUNT' | translate }}</span>
+      <div class="row minus-margin m-b-0">
+        <md-form-field class="col s12">
+          <input mdInput placeholder="{{'HOME.NAME_ON_CARD' | translate}}" id="cName" [(ngModel)]="nameOnCard" formControlName="cName"
+            ngControl="cName" type="text">
+          <md-error *ngIf="!cName.hasError('required') &&cardForm.controls.cName.invalid && (cardForm.controls.cName.touched || form_submited)">
+            {{ 'VALIDATION.NAME_INVALID' | translate }}
+          </md-error>
+          <md-error *ngIf="cName.hasError('required') && (cardForm.controls.cName.touched || form_submited)">
+            {{ 'VALIDATION.NAME_REQUIRED' | translate }}
+          </md-error>
+        </md-form-field>
+      </div>
+      <div class="row minus-margin">
+        <md-form-field class="col s12 m6 cvv-wrapp" [ngClass]="{'form-error':(invalidCardNumber||cardNumberAlreadyInUse) && (cardForm.controls.cNumber.touched || form_submited)}">
+          <input mdInput placeholder="{{'HOME.CARD_NUMBER' | translate}}" id="cNumber" [(ngModel)]="cardNumber" (ngModelChange)="validateCard($event)"
+            formControlName="cNumber" ngControl="cNumber" creditCard>
+          <span class="mat-error absolute" *ngIf="invalidCardNumber && !cNumber.hasError('required')">{{ 'VALIDATION.CARD_INVALID' | translate }}</span>
+          <span class="mat-error absolute" *ngIf="cardNumberAlreadyInUse && !invalidCardNumber && !cNumber.hasError('required')">{{ 'VALIDATION.CARD_INUSE' | translate }}</span>
+          <md-error *ngIf="cNumber.hasError('required') && (cardForm.controls.cNumber.touched || form_submited)">
+            {{ 'VALIDATION.CARD_REQUIRED' | translate }}
+          </md-error>
+        </md-form-field>
+        <div class="input-field col s12 m6 margin0">
+          <div class="input-wrapp">
+            <span class="label-text date-label">{{ 'HOME.EXPIRATION_DATE' | translate }}</span>
+            <div class="row minus-margin m-b-0">
+              <div class="col s6">
+                <md-select class="custom-select" placeholder="MM" [(ngModel)]="cardMonth" (ngModelChange)="change()" formControlName="expMonth"
+                  ngControl="expMonth" floatPlaceholder="never">
+                  <md-option *ngFor="let month of months" [value]="month">{{month}}</md-option>
+                </md-select>
+                <md-error *ngIf="expMonth.hasError('selectValid')&& (cardForm.controls.expMonth.touched || form_submited)">
+                  {{ 'VALIDATION.REQUIRED' | translate }}
+                </md-error>
+              </div>
+              <div class="col s6">
+                <md-select class="custom-select" placeholder="YYYY" [(ngModel)]="cardYear" (ngModelChange)="change()" formControlName="expYear"
+                  ngControl="expYear" floatPlaceholder="never">
+                  <md-option *ngFor="let year of years" [value]="year">{{year}}</md-option>
+                </md-select>
+                <md-error *ngIf="expYear.hasError('selectValid') && (cardForm.controls.expYear.touched || form_submited)">
+                  {{ 'VALIDATION.REQUIRED' | translate }}
+                </md-error>
+              </div>
+              <span *ngIf="isCardExpire" class="mat-error absolute"> {{ 'VALIDATION.CARD_EXPIRED' | translate }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row m-b-0">
+        <mz-checkbox-container>
+          <input mz-checkbox label="{{'HOME.SAVE_FAVORITE_ACCOUNT' | translate}}" [(ngModel)]="isFavourite" formControlName="favouriteCheck"
+            ngControl="favouriteCheck" id="checkbox-id" type="checkbox">
+        </mz-checkbox-container>
+      </div>
+      <input mdInput id="paymentTypeSelectName" [(ngModel)]="paymentTypeSelectName" class="hide" formControlName="cardType" ngControl="cardType">
+      <div class="row minus-margin">
+        <div class="col right link-wrapp">
+          <a mz-button class="primary-button btn left" data-test-id="btnAccountCancel" *ngIf="isAnySavedAccount" (click)="cancelClick()">{{ 'HOME.CANCEL' | translate }}</a>
+          <button type="submit" mz-button class="primary-button right" *ngIf="!saveLoading" data-test-id="btnAccountSave">{{ 'HOME.SAVE' | translate }}</button>
+          <a md-button class="primary-button btn relative right" *ngIf="saveLoading">
+              {{ 'HOME.SAVE' | translate }} 
+              <font class="overlayload">
+                <i class="spin material-icons">autorenew</i>
+              </font>
+            </a>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="col s12 button-wrapp">
+    <button type="submit" mz-button class="primary-button right" data-test-id="AddNewAccount" *ngIf="!isAddNewAccountView" (click)="addNewAccount()">{{ 'HOME.ADD_NEW_ACCOUNT' | translate }}</button>
+  </div>
+</div>

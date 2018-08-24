@@ -1,0 +1,107 @@
+<ion-header class="custom-header">
+	<ion-grid>
+	  <ion-row>
+	    <ion-col>
+	      <div class="kiosk-name tangent-block t-right">
+		  	<ion-item>
+			    <h2 data-test-id="kiosk-name">Magic Kisok</h2>
+			    <p  data-test-id="casino-name">Live Casino</p>
+			</ion-item>
+		  </div>
+	    </ion-col>
+	    <ion-col>
+	      <div class="kiosk-logo">
+		  	<img  src="/assets/img/logo.png"/>
+		  </div>
+	    </ion-col>
+	    <ion-col>
+	      <div class="kiosk-time tangent-block t-left">
+		  	<ion-item>
+			    <ion-avatar item-right >
+			    	<ion-icon ios="ios-time" md="md-time"></ion-icon>
+			    </ion-avatar>
+			    <h2  data-test-id="current-time">{{currentTime}}</h2>
+			    <p  data-test-id="play-time">Play time : {{countString}}</p>
+			</ion-item>
+		  </div>
+	    </ion-col>
+	  </ion-row>
+	</ion-grid>
+</ion-header>
+
+
+<ion-content padding class="home-content">
+  
+	<ion-grid class="strip-slider">
+	  <ion-row>
+	    <ion-col col-12>
+          <ion-slides  [pager]="false"  #featuredGames>
+            <ion-slide *ngFor="let slide of featured_games_slides" class="game-thumb-skew">
+              <ion-card class="list-card" data-test-id="play-now">
+                 <button class="cardInnerWrap" [disabled]="clickControl" (tap)="gotoPlay(slide.gameUrl)">
+                    <ion-item>
+                      {{slide.gameTitle}}
+                    </ion-item>
+
+                    <img [src]="slide.gameImage">
+             
+                    <ion-row>
+                        <div ion-button class="button-play" >
+                          <div>Play Now</div>
+                        </div>
+                    </ion-row>
+                  </button>
+                </ion-card>
+              </ion-slide>
+
+
+          </ion-slides>
+          
+
+     </ion-col>
+ </ion-row>
+	 <div (tap)="nextSlide()" data-test-id="next-slide" class="button-next slide-control">
+	  	<img src="/assets/img/arrow-right.png">
+	  </div>
+	  <div (tap)="prevSlide()" data-test-id="previous-slide" class="button-prev slide-control">
+	  	<img src="/assets/img/arrow-left.png">
+	  </div>
+ </ion-grid>
+
+</ion-content>
+
+<ion-footer>
+	<ion-toolbar  class="custom-footer">
+	<ion-grid>
+		  <ion-row>
+		    <ion-col col-1 class="lock-block" >
+		    	<button class="lock" [disabled]="clickControl" (tap)="gotoLock()" data-test-id="lock-screen">
+		    		  <ion-icon ios="ios-lock" md="md-lock"></ion-icon>
+		    	</button>
+		    </ion-col>
+		    <ion-col >
+		    	<button class="home-load-more" [disabled]="clickControl" (tap)="gotoGameList()" data-test-id="load-more-games">
+		    		Load More Game
+		    	</button>
+		    	
+		    </ion-col>
+		    <ion-col col-1 class="wallet-block">
+		    	<button class="wallet" [disabled]="clickControl" (tap)="gotoWallet()" data-test-id="my-wallet">
+		    		<ion-item>
+					    <ion-avatar item-right >
+					    	<ion-icon ios="ios-bookmarks" md="md-bookmarks"></ion-icon>
+					    </ion-avatar>
+					    <h2>My Wallet</h2>
+					    <p>${{amount}}</p>
+					</ion-item>
+		    	</button>
+		    </ion-col>
+		   </ion-row>
+	</ion-grid>
+	</ion-toolbar>
+</ion-footer>
+
+<button showWhen="portrait" class="portrait">
+	<ion-icon  md="md-lock"></ion-icon>
+ 	<span>This app doesn't support portrait mode!</span>
+</button>
